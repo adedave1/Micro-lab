@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MicroLab | Tech Community</title>
+  <meta name="description" content="MicroLab — a team of developers, designers, and innovators building impactful products.">
+  <meta property="og:title" content="MicroLab | Tech Community">
+  <meta property="og:description" content="We build, we ship, we deliver.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#" class="nav-logo">
+        <img src="images/logo.png" alt="MicroLab" class="logo-img">
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#home" class="nav-link active">Home</a></li>
+        <li><a href="#about" class="nav-link">About</a></li>
+        <li><a href="#members" class="nav-link">Team</a></li>
+        <li><a href="#projects" class="nav-link">Projects</a></li>
+        <li><a href="#contact" class="nav-link">Contact</a></li>
+      </ul>
+      <div class="nav-toggle" id="navToggle">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" id="home">
+    <canvas class="hero-canvas" id="heroCanvas"></canvas>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        <span>Available for Projects</span>
+      </div>
+      <h1 class="hero-title">
+        We are <span class="gradient-text">MicroLab</span>
+      </h1>
+      <p class="hero-subtitle">
+        A tight-knit team of <span class="type-text" id="typeText"></span><span class="type-cursor">|</span>
+        <br>building products that make an impact.
+      </p>
+      <div class="hero-cta">
+        <a href="#contact" class="btn btn-primary">
+          <span>Work With Us</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+        <a href="#members" class="btn btn-secondary">
+          <span>Meet the Team</span>
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-number" data-count="15">0</span>
+          <span class="stat-label">Team Members</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-number" data-count="3">0</span>
+          <span class="stat-label">Years Active</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-number" data-count="20">0</span>
+          <span class="stat-label">Projects Shipped</span>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <div class="mouse"><div class="wheel"></div></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section class="about" id="about">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">About Us</span>
+        <h2 class="section-title">Who We <span class="gradient-text">Are</span></h2>
+        <p class="section-desc">MicroLab is a closed team of skilled builders. We don't take on everyone,we take on the right work, and we do it exceptionally well.</p>
+      </div>
+      <div class="about-grid">
+        <div class="about-card reveal">
+          <div class="about-icon"><i class="fas fa-code"></i></div>
+          <h3>Development</h3>
+          <p>Web, mobile, and backend systems built with precision using modern stacks that scale.</p>
+        </div>
+        <div class="about-card reveal">
+          <div class="about-icon"><i class="fas fa-palette"></i></div>
+          <h3>Design</h3>
+          <p>Interfaces that are clean, intentional, and built for real users.</p>
+        </div>
+        <div class="about-card reveal">
+          <div class="about-icon"><i class="fas fa-rocket"></i></div>
+          <h3>Delivery</h3>
+          <p>We ship. Deadlines are respected, quality is non-negotiable, results speak for themselves.</p>
+        </div>
+        <div class="about-card reveal">
+          <div class="about-icon"><i class="fas fa-handshake"></i></div>
+          <h3>Collaboration</h3>
+          <p>We work closely with clients, not just for them. Your vision, our execution.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team -->
+  <section class="members" id="members">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">The Team</span>
+        <h2 class="section-title">Who's <span class="gradient-text">Behind It</span></h2>
+        <p class="section-desc">A carefully assembled team. Every member was chosen.</p>
+      </div>
+      <div class="members-grid" id="membersGrid"></div>
+      <div class="members-empty" id="membersEmpty">
+        <i class="fas fa-users"></i>
+        <p>Team profiles coming soon.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section class="projects" id="projects">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Portfolio</span>
+        <h2 class="section-title">What We've <span class="gradient-text">Built</span></h2>
+        <p class="section-desc">A selection of products and projects shipped by the MicroLab team.</p>
+      </div>
+      <div class="projects-grid" id="projectsGrid"></div>
+      <div class="projects-empty reveal">
+        <div class="projects-empty-inner">
+          <div class="empty-icon"><i class="fas fa-flask"></i></div>
+          <h3>Work in Progress</h3>
+          <p>Projects are being documented. Check back soon.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="contact" id="contact">
+    <div class="container">
+      <div class="contact-wrapper">
+        <div class="contact-content reveal">
+          <span class="section-tag">Contact Us</span>
+          <h2 class="section-title">Let's build something <span class="gradient-text">together</span></h2>
+          <p class="section-desc">Whether you have a project in mind, want to explore a collaboration, or just want to talk, we're open. Reach out and we'll get back to you.</p>
+          <div class="contact-info">
+            <div class="contact-item">
+              <div class="contact-item-icon"><i class="fas fa-envelope"></i></div>
+              <span>microlab.community@gmail.com</span>
+            </div>
+            <div class="contact-item">
+              <div class="contact-item-icon"><i class="fab fa-instagram"></i></div>
+              <span>discord.gg/microlab</span>
+            </div>
+            <div class="contact-item">
+              <div class="contact-item-icon"><i class="fab fa-tiktok"></i></div>
+              <span>github.com/microlab</span>
+            </div>
+          </div>
+        </div>
+        <div class="contact-form-wrapper reveal">
+          <form class="contact-form" id="contactForm">
+            <div class="form-group">
+              <label>Your Name</label>
+              <input type="text" id="fname" placeholder="John Doe" required>
+            </div>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" id="femail" placeholder="john@example.com" required>
+            </div>
+            <div class="form-group">
+              <label>Type of Inquiry</label>
+              <select id="finquiry" required>
+                <option value="">Select an option</option>
+                <option value="client">I have a project / I want to hire</option>
+                <option value="collaboration">I want to collaborate</option>
+                <option value="other">Something else</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Message</label>
+              <textarea id="fmessage" rows="4" placeholder="Tell us what you have in mind…" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full" id="submitBtn">
+              <span>Send Message</span>
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <div class="footer-logo-wrap">
+            <img src="images/logo.png" alt="MicroLab" class="logo-img-footer">
+          </div>
+          <p class="footer-desc">Building the future, one project at a time.</p>
+        </div>
+        <div class="footer-links">
+          <div class="footer-col">
+            <h4>Navigate</h4>
+            <ul>
+              <li><a href="#about">About</a></li>
+              <li><a href="#members">Team</a></li>
+              <li><a href="#projects">Projects</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Connect</h4>
+            <ul>
+              <li><a href="#"><i class="fab fa-envelope"></i> Email</a></li>
+              <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+              <li><a href="#"><i class="fab fa-tiktok"></i> TikTok</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 MicroLab. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Member Modal -->
+  <div class="modal" id="memberModal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <div class="toast-icon"><i class="fas fa-check-circle"></i></div>
+    <div class="toast-message"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

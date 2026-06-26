@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MicroLab Admin</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-screen">
+  <canvas id="fluidCanvas"></canvas>
+  <div class="login-card">
+    <div class="login-card-glow"></div>
+    <div class="login-card-inner">
+      <div class="login-brand">
+        <img src="images/logo.png" alt="MicroLab" class="logo-img">
+        <span class="brand-sub">Admin Panel</span>
+      </div>
+      <form id="loginForm" class="login-form" autocomplete="off">
+        <div class="lf-group">
+          <label>Email</label>
+          <div class="lf-input-wrap">
+            <i class="fas fa-envelope lf-icon"></i>
+            <input type="email" id="lEmail" placeholder="admin@microlab.dev" required autocomplete="email">
+          </div>
+        </div>
+        <div class="lf-group">
+          <label>Password</label>
+          <div class="lf-input-wrap">
+            <i class="fas fa-lock lf-icon"></i>
+            <input type="password" id="lPassword" placeholder="••••••••••" required autocomplete="current-password">
+            <button type="button" class="lf-toggle" id="pwToggle" tabindex="-1">
+              <i class="fas fa-eye" id="pwIcon"></i>
+            </button>
+          </div>
+        </div>
+        <div class="lf-error" id="lError"></div>
+        <button type="submit" class="lf-btn" id="lBtn">
+          <span id="lBtnLabel">Sign In</span>
+          <div class="lf-btn-shimmer"></div>
+        </button>
+      </form>
+      <p class="login-footer-note">Restricted access. Authorised personnel only.</p>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="dashboard-hidden">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-logo">
+      <img src="images/logo.png" alt="MicroLab" class="logo-img-sm">
+    </div>
+    <nav class="sb-nav">
+      <button class="sb-item active" data-panel="members">
+        <i class="fas fa-users"></i>
+        <span>Members</span>
+        <span class="sb-badge" id="memberBadge">0</span>
+      </button>
+      <button class="sb-item" data-panel="projects">
+        <i class="fas fa-flask"></i>
+        <span>Projects</span>
+        <span class="sb-badge" id="projectBadge">0</span>
+      </button>
+    </nav>
+    <div class="sb-footer">
+      <div class="sb-user" id="sbUser"></div>
+      <button class="sb-logout" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i> Sign out
+      </button>
+    </div>
+  </aside>
+
+  <div class="dash-body">
+    <header class="dash-header">
+      <button class="dash-menu-btn" id="menuBtn"><i class="fas fa-bars"></i></button>
+      <div class="dash-header-title" id="dashTitle">Members</div>
+      <button class="btn-add" id="btnAdd"><i class="fas fa-plus"></i> Add</button>
+    </header>
+
+    <main class="dash-main">
+
+      <!-- Members Panel -->
+      <div class="panel active" id="panel-members">
+        <div class="panel-toolbar">
+          <div class="panel-count" id="memberCount">0 members</div>
+          <input class="panel-search" id="memberSearch" type="text" placeholder="Search members…">
+        </div>
+        <div class="member-table" id="memberTableWrap">
+          <div class="table-head members-head">
+            <span></span>
+            <span>Name</span>
+            <span>Role</span>
+            <span>Skills</span>
+            <span>Actions</span>
+          </div>
+          <div id="memberRows"></div>
+        </div>
+        <div class="panel-empty" id="memberEmpty">
+          <i class="fas fa-users"></i>
+          <p>No members yet. Click Add to get started.</p>
+        </div>
+      </div>
+
+      <!-- Projects Panel -->
+      <div class="panel" id="panel-projects">
+        <div class="panel-toolbar">
+          <div class="panel-count" id="projectCount">0 projects</div>
+          <input class="panel-search" id="projectSearch" type="text" placeholder="Search projects…">
+        </div>
+        <div class="member-table" id="projectTableWrap">
+          <div class="table-head projects-head">
+            <span>Title</span>
+            <span>Category</span>
+            <span>Status</span>
+            <span>Actions</span>
+          </div>
+          <div id="projectRows"></div>
+        </div>
+        <div class="panel-empty" id="projectEmpty">
+          <i class="fas fa-flask"></i>
+          <p>No projects yet. Click Add to create one.</p>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- MEMBER DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<div class="drawer" id="memberDrawer">
+  <div class="drawer-header">
+    <h3 id="drawerTitle">Add Member</h3>
+    <button class="drawer-close" id="drawerClose"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="drawer-body">
+    <form id="memberForm">
+      <input type="hidden" id="mEditId">
+      <div class="photo-upload">
+        <div class="photo-preview" id="photoPreview">
+          <div class="photo-placeholder">
+            <i class="fas fa-camera"></i>
+            <span>Upload Photo</span>
+          </div>
+        </div>
+        <input type="file" id="photoInput" accept="image/*">
+        <div class="photo-actions">
+          <button type="button" class="ph-btn" id="photoBtn">Choose Photo</button>
+          <button type="button" class="ph-btn ph-btn-remove" id="photoRemove">Remove</button>
+        </div>
+        <p class="photo-hint">Leave empty to show initials avatar</p>
+      </div>
+      <div class="df-grid">
+        <div class="df-group df-full">
+          <label>Full Name *</label>
+          <input type="text" id="mName" placeholder="e.g. Alex Okafor" required>
+        </div>
+        <div class="df-group df-full">
+          <label>Role *</label>
+          <input type="text" id="mRole" placeholder="e.g. Lead Developer" required>
+        </div>
+        <div class="df-group df-full">
+          <label>Bio</label>
+          <textarea id="mBio" rows="3" placeholder="Short bio…"></textarea>
+        </div>
+        <div class="df-group df-full">
+          <label>Skills <span class="hint">comma separated</span></label>
+          <input type="text" id="mSkills" placeholder="React, Node.js, Python">
+        </div>
+        <div class="df-group">
+          <label>GitHub URL</label>
+          <input type="url" id="mGithub" placeholder="https://github.com/…">
+        </div>
+        <div class="df-group">
+          <label>LinkedIn URL</label>
+          <input type="url" id="mLinkedin" placeholder="https://linkedin.com/in/…">
+        </div>
+        <div class="df-group">
+          <label>Twitter URL</label>
+          <input type="url" id="mTwitter" placeholder="https://twitter.com/…">
+        </div>
+        <div class="df-group">
+          <label>Website URL</label>
+          <input type="url" id="mWebsite" placeholder="https://…">
+        </div>
+      </div>
+      <div class="drawer-actions">
+        <button type="submit" class="btn-save" id="mSaveBtn">Save Member</button>
+        <button type="button" class="btn-cancel-drawer" id="drawerCancel">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- PROJECT DRAWER -->
+<div class="drawer" id="projectDrawer">
+  <div class="drawer-header">
+    <h3 id="pDrawerTitle">Add Project</h3>
+    <button class="drawer-close" id="pDrawerClose"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="drawer-body">
+    <form id="projectForm">
+      <input type="hidden" id="pEditId">
+      <div class="df-grid">
+        <div class="df-group df-full">
+          <label>Project Title *</label>
+          <input type="text" id="pTitle" placeholder="e.g. MicroTask" required>
+        </div>
+        <div class="df-group">
+          <label>Category</label>
+          <select id="pCategory">
+            <option value="web">Web App</option>
+            <option value="mobile">Mobile App</option>
+            <option value="design">Design</option>
+            <option value="ai">AI / ML</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="df-group">
+          <label>Status</label>
+          <select id="pStatus">
+            <option value="live">Live</option>
+            <option value="draft">Draft</option>
+            <option value="wip">In Progress</option>
+          </select>
+        </div>
+        <div class="df-group df-full">
+          <label>Description</label>
+          <textarea id="pDesc" rows="3" placeholder="What does this project do?"></textarea>
+        </div>
+        <div class="df-group df-full">
+          <label>Tech Stack <span class="hint">comma separated</span></label>
+          <input type="text" id="pTech" placeholder="React, Node.js, PostgreSQL">
+        </div>
+        <div class="df-group df-full">
+          <label>Project URL</label>
+          <input type="url" id="pUrl" placeholder="https://github.com/…">
+        </div>
+      </div>
+      <div class="drawer-actions">
+        <button type="submit" class="btn-save" id="pSaveBtn">Save Project</button>
+        <button type="button" class="btn-cancel-drawer" id="pDrawerCancel">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-icon"><i class="fas fa-trash"></i></div>
+    <h3>Delete this entry?</h3>
+    <p>This action cannot be undone.</p>
+    <div class="confirm-actions">
+      <button class="btn-cancel-drawer" id="confirmNo">Cancel</button>
+      <button class="btn-delete" id="confirmYes">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="admin-toast" id="adminToast"></div>
+
+<script src="admin.js"></script>
+</body>
+</html>
