@@ -52,7 +52,7 @@
 </div>
 
 <!-- DASHBOARD -->
-<div id="dashboard" class="dashboard-hidden">
+<div id="dashboard" style="display:none">
   <aside class="sidebar" id="sidebar">
     <div class="sb-logo">
       <img src="images/logo.png" alt="MicroLab" class="logo-img-sm">
@@ -140,23 +140,15 @@
     <h3 id="drawerTitle">Add Member</h3>
     <button class="drawer-close" id="drawerClose"><i class="fas fa-times"></i></button>
   </div>
-  <div class="drawer-body">
+<div class="drawer-body">
     <form id="memberForm">
       <input type="hidden" id="mEditId">
-      <div class="photo-upload">
-        <div class="photo-preview" id="photoPreview">
-          <div class="photo-placeholder">
-            <i class="fas fa-camera"></i>
-            <span>Upload Photo</span>
-          </div>
+      <div class="df-grid">
+        <div class="df-group df-full">
+          <label>Photo URL</label>
+          <input type="url" id="mImage" placeholder="https://i.imgur.com/xxxxx.jpg">
+          <span style="font-size:0.75rem;color:var(--text-3);margin-top:4px;display:block;">Upload photo to Imgur and paste the direct link here</span>
         </div>
-        <input type="file" id="photoInput" accept="image/*">
-        <div class="photo-actions">
-          <button type="button" class="ph-btn" id="photoBtn">Choose Photo</button>
-          <button type="button" class="ph-btn ph-btn-remove" id="photoRemove">Remove</button>
-        </div>
-        <p class="photo-hint">Leave empty to show initials avatar</p>
-      </div>
       <div class="df-grid">
         <div class="df-group df-full">
           <label>Full Name *</label>
@@ -268,6 +260,8 @@
 <!-- TOAST -->
 <div class="admin-toast" id="adminToast"></div>
 
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="admin.js"></script>
 </body>
-</html>
+  </html>
