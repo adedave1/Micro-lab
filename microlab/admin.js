@@ -1,28 +1,41 @@
 'use strict';
 
-// ===== Config =====
-const ADMIN_EMAIL = 'microlab.community@gmail.com';
-const ADMIN_PASSWORD = '$microlab2026';
-const MEMBERS_KEY = 'ml_members';
-const PROJECTS_KEY = 'ml_projects';
-const MAX_MEMBERS = 15;
+// ===== Firebase =====
+var firebaseConfig = {
+  apiKey: "AIzaSyDv9NLCcWMu--g9YRsHdfteH8Ekm_9kdN4",
+  authDomain: "microlabb.firebaseapp.com",
+  projectId: "microlabb",
+  storageBucket: "microlabb.firebasestorage.app",
+  messagingSenderId: "916155789810",
+  appId: "1:916155789810:web:4c6b99643e2d6d653abb6b",
+  measurementId: "G-FQ3D9HCGJ9"
+};
+firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
+
+// ===== Credentials =====
+var ADMIN_EMAIL = 'microlab.community@gmail.com';
+var ADMIN_PASSWORD = '$microlab2026';
+var MAX_MEMBERS = 15;
 
 // ===== State =====
-let currentPanel = 'members';
-let editingMemberId = null;
-let editingProjectId = null;
-let deleteTarget = null;
-let photoData = null;
+var currentPanel = 'members';
+var editingMemberId = null;
+var editingProjectId = null;
+var deleteTarget = null;
+var photoData = null;
+var allMembers = [];
+var allProjects = [];
 
 // ============================================================
 // FLUID CANVAS
 // ============================================================
 (function initCanvas() {
-  const canvas = document.getElementById('fluidCanvas');
+  var canvas = document.getElementById('fluidCanvas');
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  let w, h;
+  var ctx = canvas.getContext('2d');
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var w, h;
 
   function resize() {
     w = canvas.width = canvas.clientWidth * dpr;
@@ -31,33 +44,36 @@ let photoData = null;
   resize();
   window.addEventListener('resize', resize);
 
-  const blobs = [
+  var blobs = [
     { x:0.2, y:0.3, r:0.45, color:'#c8d400', speed:0.00018, phase:0 },
     { x:0.8, y:0.6, r:0.5,  color:'#f97316', speed:0.00013, phase:2.1 },
     { x:0.5, y:0.8, r:0.4,  color:'#dc2626', speed:0.00021, phase:4.2 },
-    { x:0.15,y:0.75,r:0.35, color:'#3ab8b8', speed:0.00016, phase:1.1 },
+    { x:0.15,y:0.75,r:0.35, color:'#3ab8b8', speed:0.00016, phase:1.1 }
   ];
 
-  const particles = Array.from({ length: 100 }, () => ({
-    x: Math.random(), y: Math.random(),
-    vx: (Math.random() - 0.5) * 0.0002,
-    vy: (Math.random() - 0.5) * 0.0002 - 0.00005,
-    r: Math.random() * 1.5 + 0.5,
-    alpha: Math.random() * 0.25 + 0.05,
-    color: ['#c8d400','#f97316','#3ab8b8','#ffffff'][Math.floor(Math.random() * 4)]
-  }));
+  var particles = [];
+  for (var i = 0; i < 100; i++) {
+    particles.push({
+      x: Math.random(), y: Math.random(),
+      vx: (Math.random() - 0.5) * 0.0002,
+      vy: (Math.random() - 0.5) * 0.0002 - 0.00005,
+      r: Math.random() * 1.5 + 0.5,
+      alpha: Math.random() * 0.25 + 0.05,
+      color: ['#c8d400','#f97316','#3ab8b8','#ffffff'][Math.floor(Math.random() * 4)]
+    });
+  }
 
-  let t = 0;
+  var t = 0;
   function frame() {
     t++;
     ctx.fillStyle = 'rgba(12,12,16,0.2)';
     ctx.fillRect(0, 0, w, h);
 
-    blobs.forEach(b => {
-      const bx = (b.x + Math.sin(t * b.speed * Math.PI * 2 + b.phase) * 0.2) * w;
-      const by = (b.y + Math.cos(t * b.speed * Math.PI * 2 + b.phase * 1.3) * 0.15) * h;
-      const br = b.r * Math.min(w, h);
-      const g = ctx.createRadialGradient(bx, by, 0, bx, by, br);
+    blobs.forEach(function (b) {
+      var bx = (b.x + Math.sin(t * b.speed * Math.PI * 2 + b.phase) * 0.2) * w;
+      var by = (b.y + Math.cos(t * b.speed * Math.PI * 2 + b.phase * 1.3) * 0.15) * h;
+      var br = b.r * Math.min(w, h);
+      var g = ctx.createRadialGradient(bx, by, 0, bx, by, br);
       g.addColorStop(0, b.color + '1a');
       g.addColorStop(0.5, b.color + '0a');
       g.addColorStop(1, b.color + '00');
@@ -65,18 +81,18 @@ let photoData = null;
       ctx.fillRect(0, 0, w, h);
     });
 
-    particles.forEach(p => {
+    particles.forEach(function (p) {
       p.x += p.vx; p.y += p.vy;
       if (p.x < 0) p.x = 1; if (p.x > 1) p.x = 0;
       if (p.y < 0) p.y = 1; if (p.y > 1) p.y = 0;
-      const alpha = Math.round(p.alpha * 255).toString(16).padStart(2, '0');
+      var alpha = Math.round(p.alpha * 255).toString(16).padStart(2, '0');
       ctx.beginPath();
       ctx.arc(p.x * w, p.y * h, p.r * dpr, 0, Math.PI * 2);
       ctx.fillStyle = p.color + alpha;
       ctx.fill();
     });
 
-    const vig = ctx.createRadialGradient(w/2, h/2, w*0.2, w/2, h/2, w*0.75);
+    var vig = ctx.createRadialGradient(w/2, h/2, w*0.2, w/2, h/2, w*0.75);
     vig.addColorStop(0, 'rgba(0,0,0,0)');
     vig.addColorStop(1, 'rgba(0,0,0,0.65)');
     ctx.fillStyle = vig;
@@ -112,7 +128,7 @@ loginForm.addEventListener('submit', function (e) {
   var password = lPassword.value;
 
   lBtn.disabled = true;
-  lBtnLabel.textContent = 'Authenticating…';
+  lBtnLabel.textContent = 'Authenticating\u2026';
   lError.classList.remove('show');
 
   setTimeout(function () {
@@ -140,13 +156,12 @@ document.getElementById('logoutBtn').addEventListener('click', function () {
 });
 
 // ============================================================
-// DASHBOARD INIT
+// DASHBOARD
 // ============================================================
 function initDashboard() {
-  renderMemberTable();
-  renderProjectTable();
+  loadMembers();
+  loadProjects();
 
-  // Sidebar nav
   document.querySelectorAll('.sb-item').forEach(function (btn) {
     btn.addEventListener('click', function () {
       currentPanel = btn.dataset.panel;
@@ -171,18 +186,6 @@ function initDashboard() {
 }
 
 // ============================================================
-// STORAGE HELPERS
-// ============================================================
-function getMembers() {
-  try { return JSON.parse(localStorage.getItem(MEMBERS_KEY)) || []; } catch (e) { return []; }
-}
-function saveMembers(arr) { localStorage.setItem(MEMBERS_KEY, JSON.stringify(arr)); }
-function getProjects() {
-  try { return JSON.parse(localStorage.getItem(PROJECTS_KEY)) || []; } catch (e) { return []; }
-}
-function saveProjects(arr) { localStorage.setItem(PROJECTS_KEY, JSON.stringify(arr)); }
-
-// ============================================================
 // HELPERS
 // ============================================================
 function getInitials(name) {
@@ -202,16 +205,27 @@ function adminToast(msg, type) {
 }
 
 // ============================================================
-// MEMBERS — TABLE
+// MEMBERS — LOAD & RENDER
 // ============================================================
+function loadMembers() {
+  db.collection('members').orderBy('createdAt').get().then(function (snapshot) {
+    allMembers = [];
+    snapshot.forEach(function (doc) {
+      allMembers.push(Object.assign({ id: doc.id }, doc.data()));
+    });
+    renderMemberTable();
+  }).catch(function (err) {
+    adminToast('Failed to load members', 'error');
+  });
+}
+
 function renderMemberTable() {
-  var members = getMembers();
   var search = document.getElementById('memberSearch').value.toLowerCase();
-  var filtered = members.filter(function (m) {
+  var filtered = allMembers.filter(function (m) {
     return m.name.toLowerCase().includes(search) || m.role.toLowerCase().includes(search);
   });
 
-  document.getElementById('memberBadge').textContent = members.length;
+  document.getElementById('memberBadge').textContent = allMembers.length;
   document.getElementById('memberCount').textContent =
     filtered.length + ' member' + (filtered.length !== 1 ? 's' : '');
 
@@ -230,7 +244,7 @@ function renderMemberTable() {
 
   rows.innerHTML = filtered.map(function (m) {
     var avatarHtml = m.image
-      ? '<div class="tr-avatar"><img src="' + m.image + '" alt="' + m.name + '" onerror="this.parentNode.style.background=\'' + getInitialsColor(m.name) + '\';this.outerHTML=\'' + getInitials(m.name) + '\'"></div>'
+      ? '<div class="tr-avatar"><img src="' + m.image + '" alt="' + m.name + '"></div>'
       : '<div class="tr-avatar" style="background:' + getInitialsColor(m.name) + '">' + getInitials(m.name) + '</div>';
 
     var skillsHtml = (m.skills || []).slice(0, 3).map(function (s) {
@@ -262,13 +276,13 @@ function openMemberDrawer(id) {
   editingMemberId = id;
   photoData = null;
   document.getElementById('memberForm').reset();
-  resetPhotoUI();
+  document.getElementById('mImage').value = '';
   document.getElementById('mEditId').value = id || '';
   document.getElementById('drawerTitle').textContent = id ? 'Edit Member' : 'Add Member';
   document.getElementById('mSaveBtn').textContent = id ? 'Update Member' : 'Save Member';
 
   if (id) {
-    var m = getMembers().find(function (x) { return x.id === id; });
+    var m = allMembers.find(function (x) { return x.id === id; });
     if (m) {
       document.getElementById('mName').value = m.name || '';
       document.getElementById('mRole').value = m.role || '';
@@ -278,7 +292,7 @@ function openMemberDrawer(id) {
       document.getElementById('mLinkedin').value = (m.social && m.social.linkedin) || '';
       document.getElementById('mTwitter').value = (m.social && m.social.twitter) || '';
       document.getElementById('mWebsite').value = (m.social && m.social.website) || '';
-      if (m.image) { photoData = m.image; setPhotoPreview(m.image); }
+      document.getElementById('mImage').value = m.image || '';
     }
   }
 
@@ -294,59 +308,30 @@ function closeMemberDrawer() {
 
 document.getElementById('drawerClose').addEventListener('click', closeMemberDrawer);
 document.getElementById('drawerCancel').addEventListener('click', closeMemberDrawer);
-
 drawerOverlay.addEventListener('click', function () {
   closeMemberDrawer();
   closeProjectDrawer();
 });
 
-// Photo
-document.getElementById('photoBtn').addEventListener('click', function () {
-  document.getElementById('photoInput').click();
-});
-document.getElementById('photoPreview').addEventListener('click', function () {
-  document.getElementById('photoInput').click();
-});
-document.getElementById('photoInput').addEventListener('change', function (e) {
-  var file = e.target.files[0];
-  if (!file) return;
-  if (file.size > 10 * 1024 * 1024) { adminToast('Image too large (max 10MB)', 'error'); return; }
-  var reader = new FileReader();
-  reader.onload = function (ev) { photoData = ev.target.result; setPhotoPreview(photoData); };
-  reader.readAsDataURL(file);
-});
-document.getElementById('photoRemove').addEventListener('click', function () {
-  photoData = null;
-  resetPhotoUI();
-});
-
-function setPhotoPreview(src) {
-  document.getElementById('photoPreview').innerHTML = '<img src="' + src + '" alt="Preview">';
-  document.getElementById('photoRemove').style.display = 'inline-flex';
-}
-function resetPhotoUI() {
-  document.getElementById('photoPreview').innerHTML =
-    '<div class="photo-placeholder"><i class="fas fa-camera"></i><span>Upload Photo</span></div>';
-  document.getElementById('photoRemove').style.display = 'none';
-  document.getElementById('photoInput').value = '';
-}
 
 // Save member
 document.getElementById('memberForm').addEventListener('submit', function (e) {
   e.preventDefault();
-  var members = getMembers();
 
-  if (!editingMemberId && members.length >= MAX_MEMBERS) {
+  if (!editingMemberId && allMembers.length >= MAX_MEMBERS) {
     adminToast('Maximum ' + MAX_MEMBERS + ' members reached', 'error');
     return;
   }
 
+  var btn = document.getElementById('mSaveBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving\u2026';
+
   var member = {
-    id: editingMemberId || ('ml-' + Date.now()),
     name: document.getElementById('mName').value.trim(),
     role: document.getElementById('mRole').value.trim(),
     bio: document.getElementById('mBio').value.trim(),
-    image: photoData || '',
+    image: document.getElementById('mImage').value.trim(),
     skills: document.getElementById('mSkills').value.split(',').map(function (s) { return s.trim(); }).filter(Boolean),
     social: {
       github: document.getElementById('mGithub').value.trim(),
@@ -356,32 +341,50 @@ document.getElementById('memberForm').addEventListener('submit', function (e) {
     }
   };
 
+  var promise;
   if (editingMemberId) {
-    var idx = members.findIndex(function (m) { return m.id === editingMemberId; });
-    if (idx > -1) members[idx] = member;
+    promise = db.collection('members').doc(editingMemberId).update(member);
   } else {
-    members.push(member);
+    member.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    promise = db.collection('members').add(member);
   }
 
-  saveMembers(members);
-  renderMemberTable();
-  closeMemberDrawer();
-  adminToast(editingMemberId ? 'Member updated!' : 'Member added!', 'success');
+  promise.then(function () {
+    adminToast(editingMemberId ? 'Member updated!' : 'Member added!', 'success');
+    closeMemberDrawer();
+    loadMembers();
+  }).catch(function () {
+    adminToast('Something went wrong. Try again.', 'error');
+  }).then(function () {
+    btn.disabled = false;
+    btn.textContent = editingMemberId ? 'Update Member' : 'Save Member';
+  });
 });
 
 window.editMember = function (id) { openMemberDrawer(id); };
 
 // ============================================================
-// PROJECTS — TABLE
+// PROJECTS — LOAD & RENDER
 // ============================================================
+function loadProjects() {
+  db.collection('projects').orderBy('createdAt').get().then(function (snapshot) {
+    allProjects = [];
+    snapshot.forEach(function (doc) {
+      allProjects.push(Object.assign({ id: doc.id }, doc.data()));
+    });
+    renderProjectTable();
+  }).catch(function () {
+    adminToast('Failed to load projects', 'error');
+  });
+}
+
 function renderProjectTable() {
-  var projects = getProjects();
   var search = document.getElementById('projectSearch').value.toLowerCase();
-  var filtered = projects.filter(function (p) {
+  var filtered = allProjects.filter(function (p) {
     return p.title.toLowerCase().includes(search);
   });
 
-  document.getElementById('projectBadge').textContent = projects.length;
+  document.getElementById('projectBadge').textContent = allProjects.length;
   document.getElementById('projectCount').textContent =
     filtered.length + ' project' + (filtered.length !== 1 ? 's' : '');
 
@@ -401,7 +404,7 @@ function renderProjectTable() {
   rows.innerHTML = filtered.map(function (p) {
     return '<div class="table-row project-row">' +
       '<div class="tr-name">' + p.title + '</div>' +
-      '<div class="tr-role">' + (p.category || '—') + '</div>' +
+      '<div class="tr-role">' + (p.category || '\u2014') + '</div>' +
       '<div><span class="tr-badge badge-' + (p.status || 'draft') + '">' + (p.status || 'Draft') + '</span></div>' +
       '<div class="tr-actions">' +
         '<button class="tr-btn" onclick="editProject(\'' + p.id + '\')"><i class="fas fa-pen"></i></button>' +
@@ -426,7 +429,7 @@ function openProjectDrawer(id) {
   document.getElementById('pSaveBtn').textContent = id ? 'Update Project' : 'Save Project';
 
   if (id) {
-    var p = getProjects().find(function (x) { return x.id === id; });
+    var p = allProjects.find(function (x) { return x.id === id; });
     if (p) {
       document.getElementById('pTitle').value = p.title || '';
       document.getElementById('pCategory').value = p.category || 'web';
@@ -452,9 +455,12 @@ document.getElementById('pDrawerCancel').addEventListener('click', closeProjectD
 
 document.getElementById('projectForm').addEventListener('submit', function (e) {
   e.preventDefault();
-  var projects = getProjects();
+
+  var btn = document.getElementById('pSaveBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving\u2026';
+
   var project = {
-    id: editingProjectId || ('mlp-' + Date.now()),
     title: document.getElementById('pTitle').value.trim(),
     category: document.getElementById('pCategory').value,
     status: document.getElementById('pStatus').value,
@@ -463,17 +469,24 @@ document.getElementById('projectForm').addEventListener('submit', function (e) {
     url: document.getElementById('pUrl').value.trim()
   };
 
+  var promise;
   if (editingProjectId) {
-    var idx = projects.findIndex(function (p) { return p.id === editingProjectId; });
-    if (idx > -1) projects[idx] = project;
+    promise = db.collection('projects').doc(editingProjectId).update(project);
   } else {
-    projects.push(project);
+    project.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    promise = db.collection('projects').add(project);
   }
 
-  saveProjects(projects);
-  renderProjectTable();
-  closeProjectDrawer();
-  adminToast(editingProjectId ? 'Project updated!' : 'Project added!', 'success');
+  promise.then(function () {
+    adminToast(editingProjectId ? 'Project updated!' : 'Project added!', 'success');
+    closeProjectDrawer();
+    loadProjects();
+  }).catch(function () {
+    adminToast('Something went wrong. Try again.', 'error');
+  }).then(function () {
+    btn.disabled = false;
+    btn.textContent = editingProjectId ? 'Update Project' : 'Save Project';
+  });
 });
 
 window.editProject = function (id) { openProjectDrawer(id); };
@@ -493,15 +506,14 @@ document.getElementById('confirmNo').addEventListener('click', function () {
 
 document.getElementById('confirmYes').addEventListener('click', function () {
   if (!deleteTarget) return;
-  if (deleteTarget.type === 'member') {
-    saveMembers(getMembers().filter(function (m) { return m.id !== deleteTarget.id; }));
-    renderMemberTable();
-    adminToast('Member deleted', 'success');
-  } else {
-    saveProjects(getProjects().filter(function (p) { return p.id !== deleteTarget.id; }));
-    renderProjectTable();
-    adminToast('Project deleted', 'success');
-  }
+  var collection = deleteTarget.type === 'member' ? 'members' : 'projects';
+  db.collection(collection).doc(deleteTarget.id).delete().then(function () {
+    adminToast((deleteTarget.type === 'member' ? 'Member' : 'Project') + ' deleted', 'success');
+    if (deleteTarget.type === 'member') loadMembers();
+    else loadProjects();
+  }).catch(function () {
+    adminToast('Delete failed. Try again.', 'error');
+  });
   document.getElementById('confirmOverlay').classList.remove('show');
   deleteTarget = null;
 });
