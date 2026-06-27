@@ -1,9 +1,23 @@
 'use strict';
 
-// ===== EmailJS — swap your keys =====
+// ===== Firebase =====
+var firebaseConfig = {
+  apiKey: "AIzaSyDv9NLCcWMu--g9YRsHdfteH8Ekm_9kdN4",
+  authDomain: "microlabb.firebaseapp.com",
+  projectId: "microlabb",
+  storageBucket: "microlabb.firebasestorage.app",
+  messagingSenderId: "916155789810",
+  appId: "1:916155789810:web:4c6b99643e2d6d653abb6b",
+  measurementId: "G-FQ3D9HCGJ9"
+};
+firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
+
+// ===== EmailJS =====
 emailjs.init('ikJRYjhBaT2c3Buc2');
 var EMAILJS_SERVICE = 'service_pb4rcpk';
 var EMAILJS_TEMPLATE = 'template_vibta1q';
+
 
 // ===== Typing Animation =====
 var typeWords = ['developers', 'designers', 'engineers', 'problem solvers', 'builders'];
@@ -56,7 +70,6 @@ type();
 
   function draw() {
     ctx.clearRect(0, 0, w, h);
-
     var bg = ctx.createRadialGradient(w * 0.3, h * 0.3, 0, w * 0.5, h * 0.5, w * 0.8);
     bg.addColorStop(0, 'rgba(200,212,0,0.04)');
     bg.addColorStop(0.5, 'rgba(249,115,22,0.03)');
@@ -173,46 +186,7 @@ var heroObs = new IntersectionObserver(function (entries) {
 var heroSection = document.querySelector('.hero');
 if (heroSection) heroObs.observe(heroSection);
 
-// ===== Members =====
-var DEFAULT_MEMBERS = [
-  {
-    id: 'default-1',
-    name: 'Alex Okafor',
-    role: 'Lead Developer',
-    image: '',
-    bio: 'Full-stack developer with a passion for building scalable systems and clean architecture.',
-    skills: ['React', 'Node.js', 'Python', 'AWS'],
-    social: { github: '#', linkedin: '#', twitter: '', website: '' }
-  },
-  {
-    id: 'default-2',
-    name: 'Sara Mensah',
-    role: 'UI/UX Designer',
-    image: '',
-    bio: 'Designer focused on creating intuitive, beautiful interfaces that users actually enjoy.',
-    skills: ['Figma', 'Adobe XD', 'Prototyping', 'Motion'],
-    social: { github: '', linkedin: '#', twitter: '#', website: '' }
-  },
-  {
-    id: 'default-3',
-    name: 'James Eze',
-    role: 'Mobile Developer',
-    image: '',
-    bio: 'Mobile developer building seamless cross-platform experiences with Flutter and Kotlin.',
-    skills: ['Flutter', 'Kotlin', 'Firebase', 'Supabase'],
-    social: { github: '#', linkedin: '#', twitter: '', website: '' }
-  }
-];
-
-function getMembers() {
-  try {
-    var stored = localStorage.getItem('ml_members');
-    if (stored) return JSON.parse(stored);
-  } catch (e) {}
-  localStorage.setItem('ml_members', JSON.stringify(DEFAULT_MEMBERS));
-  return DEFAULT_MEMBERS;
-}
-
+// ===== Members from Firestore =====
 function getInitialsColor(name) {
   var hues = [16, 25, 160, 200, 270, 340];
   var hash = 0;
@@ -224,10 +198,9 @@ function getInitials(name) {
   return name.split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
 }
 
-function renderMembers() {
+function renderMembers(members) {
   var grid = document.getElementById('membersGrid');
   var empty = document.getElementById('membersEmpty');
-  var members = getMembers();
 
   if (!members.length) {
     grid.style.display = 'none';
@@ -239,7 +212,7 @@ function renderMembers() {
 
   grid.innerHTML = members.map(function (m, i) {
     var imgHtml = m.image
-      ? '<img src="' + m.image + '" alt="' + m.name + '" onerror="this.outerHTML=\'<div class=member-initials-avatar style=background:' + getInitialsColor(m.name) + '>' + getInitials(m.name) + '</div>\'">'
+      ? '<img src="' + m.image + '" alt="' + m.name + '">'
       : '<div class="member-initials-avatar" style="background:' + getInitialsColor(m.name) + '">' + getInitials(m.name) + '</div>';
 
     var skillsHtml = (m.skills || []).slice(0, 4).map(function (s) {
@@ -269,7 +242,19 @@ function renderMembers() {
   }).join('');
 
   grid.querySelectorAll('.member-card').forEach(function (card) {
-    card.addEventListener('click', function () { openModal(card.dataset.id); });
+    card.addEventListener('click', function () { openModal(card.dataset.id, members); });
+  });
+}
+
+function loadMembers() {
+  db.collection('members').orderBy('createdAt').get().then(function (snapshot) {
+    var members = [];
+    snapshot.forEach(function (doc) {
+      members.push(Object.assign({ id: doc.id }, doc.data()));
+    });
+    renderMembers(members);
+  }).catch(function () {
+    renderMembers([]);
   });
 }
 
@@ -278,8 +263,7 @@ var modal = document.getElementById('memberModal');
 var modalBody = document.getElementById('modalBody');
 var modalClose = document.getElementById('modalClose');
 
-function openModal(id) {
-  var members = getMembers();
+function openModal(id, members) {
   var m = members.find(function (x) { return x.id === id; });
   if (!m) return;
 
@@ -333,16 +317,18 @@ document.getElementById('contactForm').addEventListener('submit', function (e) {
   btn.disabled = true;
 
   emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
-    from_name: document.getElementById('fname').value,
-    from_email: document.getElementById('femail').value,
-    inquiry_type: document.getElementById('finquiry').value,
-    message: document.getElementById('fmessage').value
+    name: document.getElementById('fname').value,
+    time: new Date().toLocaleString(),
+    message:
+      'Email: ' + document.getElementById('femail').value + '\n' +
+      'Inquiry: ' + document.getElementById('finquiry').value + '\n\n' +
+      document.getElementById('fmessage').value
   }).then(function () {
     showToast('Message sent! We\'ll get back to you soon.');
     document.getElementById('contactForm').reset();
   }, function () {
     showToast('Something went wrong. Please try again.');
-  }).finally(function () {
+  }).then(function () {
     btn.innerHTML = original;
     btn.disabled = false;
   });
@@ -358,5 +344,5 @@ function showToast(msg) {
 
 // ===== Init =====
 document.addEventListener('DOMContentLoaded', function () {
-  renderMembers();
-});9
+  loadMembers();
+});
