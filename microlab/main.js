@@ -272,9 +272,9 @@ function openModal(id, members) {
     : '<div class="member-initials-avatar" style="background:' + getInitialsColor(m.name) + ';height:190px;border-radius:0;font-size:3rem">' + getInitials(m.name) + '</div>';
 
   var avatarHtml = m.image
-    ? '<img src="' + m.image + '" alt="' + m.name + '">'
-    : '<div class="member-initials-avatar" style="background:' + getInitialsColor(m.name) + ';height:100%">' + getInitials(m.name) + '</div>';
-
+  ? '<img src="' + m.image + '" alt="' + m.name + '" style="width:100%;height:100%;object-fit:cover;object-position:center center;border-radius:50%;display:block;">' 
+  : '<div class="member-initials-avatar" style="background:' + getInitialsColor(m.name) + ';height:100%">' + getInitials(m.name) + '</div>';
+  
   var skillsHtml = (m.skills || []).map(function (s) { return '<span class="modal-skill">' + s + '</span>'; }).join('');
 
   var linksHtml = '';
