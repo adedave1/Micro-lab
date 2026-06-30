@@ -198,6 +198,10 @@ function getInitials(name) {
   return name.split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
 }
 
+function formatSkill(skill) {
+  return skill.replace(/\(([^)]+)\)/g, 'span style="font-size:0.7em;opacity:0.7;">($1)<span>')
+}
+
 function renderMembers(members) {
   var grid = document.getElementById('membersGrid');
   var empty = document.getElementById('membersEmpty');
@@ -216,7 +220,7 @@ function renderMembers(members) {
       : '<div class="member-initials-avatar" style="background:' + getInitialsColor(m.name) + '">' + getInitials(m.name) + '</div>';
 
     var skillsHtml = (m.skills || []).slice(0, 4).map(function (s) {
-      return '<span class="skill-tag">' + s + '</span>';
+      return '<span class="skill-tag">' + formatSkill(s) + '</span>';
     }).join('');
     if ((m.skills || []).length > 4) skillsHtml += '<span class="skill-tag">+' + (m.skills.length - 4) + '</span>';
 
@@ -275,7 +279,7 @@ function openModal(id, members) {
   ? '<img src="' + m.image + '" alt="' + m.name + '" style="width:100%;height:100%;object-fit:cover;object-position:center center;border-radius:50%;display:block;">' 
   : '<div class="member-initials-avatar" style="background:' + getInitialsColor(m.name) + ';height:100%">' + getInitials(m.name) + '</div>';
   
-  var skillsHtml = (m.skills || []).map(function (s) { return '<span class="modal-skill">' + s + '</span>'; }).join('');
+  var skillsHtml = (m.skills || []).map(function (s) { return '<span class="modal-skill">' + formatSkill(s) + '</span>'; }).join('');
 
   var linksHtml = '';
   if (m.social) {
